@@ -2,11 +2,17 @@
 
 namespace ZirconLang
 {
-    class Options
+    public class Options
     {
         [Value(0, MetaName = "<FILE>", Required = false,
             HelpText = "Filename to execute. If not passed, boot up the REPL.")]
         public string? Filename { get; set; }
+
+        [Option("debug-parser", Required = false, HelpText = "Print AST and operator information")]
+        public bool DebugParser { get; set; }
+        
+        [Option("debug-lexer", Required = false, HelpText = "Print tokens emitted from the lexer")]
+        public bool DebugLexer { get; set; }
     }
 
     class Program
@@ -22,7 +28,7 @@ namespace ZirconLang
                     string filename = opts.Filename;
                     string fileContents = System.IO.File.ReadAllText(filename);
                     SourceId sid = smap.AddSource(fileContents, filename);
-                    Runner.Run(smap.LookupSource(sid), sid);
+                    Runner.Run(smap.LookupSource(sid), sid, opts);
                 }
             }
             catch (Diagnostics.ErrorDisplay e)
