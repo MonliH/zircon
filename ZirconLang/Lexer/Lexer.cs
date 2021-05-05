@@ -1,9 +1,5 @@
 using System.Collections.Generic;
-using System.Data.Common;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Xml;
 
 namespace ZirconLang.Lexer
 {
@@ -16,14 +12,13 @@ namespace ZirconLang.Lexer
         private List<Token> Tokens { get; }
         private static readonly char EOF = '\0';
 
-        private static readonly Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>
+        private static readonly Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>
         {
-            { "if", TokenType.If },
-            { "else", TokenType.Else },
-            { "elsif", TokenType.Elsif },
-            { "let", TokenType.Let },
-            { "prefix", TokenType.Prefix },
-            { "infix", TokenType.Infix },
+            {"if", TokenType.If},
+            {"else", TokenType.Else},
+            {"elsif", TokenType.Elsif},
+            {"let", TokenType.Let},
+            {"opdef", TokenType.Opdef},
         };
 
         public Lexer(string fileContents, SourceId sId)
@@ -79,20 +74,13 @@ namespace ZirconLang.Lexer
             {
                 case TokenType.RBrace:
                 case TokenType.Ident:
-                case TokenType.Number:
+                case TokenType.Int:
+                case TokenType.Float:
                 case TokenType.String:
                 case TokenType.RParen: return true;
 
                 default: return false;
             }
-        }
-
-        private bool Match(char expected)
-        {
-            if (IsAtEnd()) return false;
-            if (_stream[_eIdx] != expected) return false;
-            _eIdx++;
-            return true;
         }
 
         private void ScanToken()
@@ -111,9 +99,6 @@ namespace ZirconLang.Lexer
                     break;
                 case '}':
                     AddToken(TokenType.RBrace);
-                    break;
-                case '=':
-                    AddToken(Match('>') ? TokenType.Arrow : TokenType.Equals);
                     break;
                 case ';':
                     AddToken(TokenType.LineBreak);
@@ -166,18 +151,20 @@ namespace ZirconLang.Lexer
             {
                 Advance();
                 while (IsDigit(Peek())) Advance();
+                AddToken(TokenType.Float, _stream.Substring(_sIdx, _eIdx - _sIdx));
+                return;
             }
 
-            AddToken(TokenType.Number, _stream.Substring(_sIdx, _eIdx - _sIdx));
+            AddToken(TokenType.Int, _stream.Substring(_sIdx, _eIdx - _sIdx));
         }
 
         private void EatIdent()
         {
             while (IsAlphaNumeric(Peek())) Advance();
             string text = _stream.Substring(_sIdx, _eIdx - _sIdx);
-            if (keywords.ContainsKey(text))
-            {  
-                AddToken(keywords[text]);
+            if (Keywords.ContainsKey(text))
+            {
+                AddToken(Keywords[text]);
             }
             else
             {
@@ -194,7 +181,7 @@ namespace ZirconLang.Lexer
 
         private bool IsOperator(char c)
         {
-            return "!@$%^&*:~/?><.|-+".Contains(c);
+            return "!@$%^&*:~/?><.|-=+".Contains(c);
         }
 
         private bool IsAlpha(char c)

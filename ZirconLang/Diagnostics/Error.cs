@@ -51,7 +51,7 @@ namespace ZirconLang.Diagnostics
         {
             if (_errorMsg != null && _errorSpan != null && _ty != null)
             {
-                return new Error(_errorSpan, _errorMsg, (ErrorType) _ty);
+                return new Error((Span)_errorSpan, _errorMsg, (ErrorType) _ty);
             }
             else
             {

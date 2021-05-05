@@ -12,6 +12,10 @@ namespace ZirconLang
             {
                 Console.WriteLine($"{token.Ty}:{token.Span.S}:{token.Span.E}: `{token.Contents}`");
             }
+
+            var operators = new Parser.ExtractOps(tokens);
+            operators.Extract();
+            operators.PrintEntries();
         }
     }
 }
