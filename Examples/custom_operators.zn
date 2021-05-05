@@ -1,0 +1,17 @@
+let (+) = (a b) => add a b
+infix (+) 6
+let (-) = (a b) => sub a b
+infix (-) 6
+
+let (*) = (a b) => mul a b
+infix (*) 5
+let (/) = (a b) => div a b
+infix (/) 5
+let (%) = (a b) => mod a b
+infix (%) 5
+
+let (==) = (a b) => eq a b
+infix (==) 10
+
+let @(-) = (a) => neg a
+prefix (-) 3
