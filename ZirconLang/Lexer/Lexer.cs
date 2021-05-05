@@ -14,11 +14,10 @@ namespace ZirconLang.Lexer
 
         private static readonly Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>
         {
-            {"if", TokenType.If},
-            {"else", TokenType.Else},
-            {"elsif", TokenType.Elsif},
             {"let", TokenType.Let},
-            {"opdef", TokenType.Opdef},
+            {"preop", TokenType.Prefix},
+            {"postop", TokenType.Postfix},
+            {"binop", TokenType.Binary},
         };
 
         public Lexer(string fileContents, SourceId sId)
@@ -102,6 +101,9 @@ namespace ZirconLang.Lexer
                     break;
                 case ';':
                     AddToken(TokenType.LineBreak);
+                    break;
+                case '\\':
+                    AddToken(TokenType.Backslash);
                     break;
                 case '\n':
                     if (IsLineBreak()) AddToken(TokenType.LineBreak);
@@ -239,7 +241,7 @@ namespace ZirconLang.Lexer
             // Closing "
             Advance();
 
-            string stringContents = _stream.Substring(_sIdx + 1, _eIdx - _sIdx - 1);
+            string stringContents = _stream.Substring(_sIdx + 1, _eIdx - _sIdx - 2);
             AddToken(TokenType.String, stringContents);
         }
 

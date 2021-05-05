@@ -1,14 +1,18 @@
 # Comment here!
 let fizzbuzz' = 
-    (a b) => if a <= b {
-        if a % 3 == 0 && a % 5 == 0 {
+    \a b -> if (a <= b) {
+        if (a % 3 == 0 && a % 5 == 0) {
             print "fizzbuzz"
-        } elsif a % 3 == 0 {
-            print "fizz"
-        } elsif a % 5 == 0 {
-            print "buzz"
         } else {
-            print b
+            if (a % 3 == 0) {
+                print "fizz"
+            } else {
+                if (a % 5 == 0) {
+                    print "buzz"
+                } else {
+                    print b
+                }
+            }
         }
         fizzbuzz' (a - 1) b
     } else {

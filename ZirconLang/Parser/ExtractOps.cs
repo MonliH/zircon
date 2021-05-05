@@ -1,52 +1,117 @@
 using System;
 using System.Collections.Generic;
+using ZirconLang.Diagnostics;
 using ZirconLang.Lexer;
 
 namespace ZirconLang.Parser
 {
+    public enum Assoc
+    {
+        Left,
+        Right,
+    }
+
     public class ExtractOps : BaseParser
     {
         public Dictionary<string, int> Prefix;
         public Dictionary<string, int> Postfix;
-        public Dictionary<string, int> Infix;
+        public Dictionary<string, (int, Assoc)> Binary;
+
+        public (int, int) BinaryBp(string op, Span span)
+        {
+            if (Binary.ContainsKey(op))
+            {
+                var (prec, assoc) = Binary[op];
+                if (assoc == Assoc.Left) return (prec - 1, prec);
+                if (assoc == Assoc.Right) return (prec, prec - 1);
+            }
+
+            if (Prefix.ContainsKey(op) || Postfix.ContainsKey(op))
+            {
+                throw new ErrorBuilder().Msg($"`{op}` is not a binary operator").Span(span).Type(ErrorType.Syntax)
+                    .Build();
+            }
+
+            InvalidOp(op, span);
+            throw new InvalidOperationException("Should not be here");
+        }
+
+        public int PrefixBp(string op, Span span)
+        {
+            if (Prefix.ContainsKey(op))
+            {
+                return Prefix[op];
+            }
+            
+            if (Binary.ContainsKey(op) || Postfix.ContainsKey(op))
+            {
+                throw new ErrorBuilder().Msg($"`{op}` is not a prefix operator").Span(span).Type(ErrorType.Syntax)
+                    .Build();
+            }
+            
+            InvalidOp(op, span);
+            throw new InvalidOperationException("Should not be here");
+        }
+        
+        public int PostfixBp(string op, Span span)
+        {
+            if (Postfix.ContainsKey(op))
+            {
+                return Postfix[op];
+            }
+            
+            if (Binary.ContainsKey(op) || Prefix.ContainsKey(op))
+            {
+                throw new ErrorBuilder().Msg($"`{op}` is not a postfix operator").Span(span).Type(ErrorType.Syntax)
+                    .Build();
+            }
+            
+            InvalidOp(op, span);
+            throw new InvalidOperationException("Should not be here");
+        }
+
+        private void InvalidOp(string op, Span span)
+        {
+            throw new ErrorBuilder().Msg($"`{op}` is not a valid operator").Span(span).Type(ErrorType.Syntax).Build();
+        }
 
         public ExtractOps(List<Token> stream) : base(stream)
         {
             Prefix = new Dictionary<string, int>();
             Postfix = new Dictionary<string, int>();
-            Infix = new Dictionary<string, int>();
+            Binary = new Dictionary<string, (int, Assoc)>();
+        }
+
+        private Token ExtractOp()
+        {
+            Consume(TokenType.LParen);
+            Token op = Consume(TokenType.Operator);
+            Consume(TokenType.RParen);
+            return op;
         }
 
         public void Extract()
         {
             while (!IsAtEnd())
             {
-                if (Match(TokenType.Opdef))
+                if (Check(TokenType.Binary) || Check(TokenType.Prefix) || Check(TokenType.Postfix))
                 {
-                    var prefix = false;
-                    var postfix = false;
-                    if (Match((TokenType.Operator, "@")))
+                    Token next = Advance();
+                    var (contents, _, _) = ExtractOp();
+                    Token num = Consume(TokenType.Int, $"Expected precedence declaration for operator {contents!}");
+                    var parsed = int.Parse(num.Contents!) * 10;
+                    if (next.Ty == TokenType.Binary)
                     {
-                        prefix = true;
+                        var assoc = Assoc.Left;
+                        if (Check(TokenType.Ident, "left")) assoc = Assoc.Left;
+                        else if (Check(TokenType.Ident, "right")) assoc = Assoc.Right;
+                        else
+                            throw new ErrorBuilder().Msg("Expected an associativity of `left` or `right`")
+                                .Span(CurrentSpan()).Type(ErrorType.Syntax).Build();
+                        Binary.Add(contents!, (parsed, assoc));
                     }
-
-                    Consume(TokenType.LParen);
-                    Token op = Consume(TokenType.Operator);
-                    Consume(TokenType.RParen);
-
-                    if (Match((TokenType.Operator, "@")))
-                    {
-                        postfix = true;
-                    }
-
-                    Token num = Consume(TokenType.Int);
-                    Consume(TokenType.LineBreak);
-
-                    string contents = op.Contents!;
-                    var parsed = int.Parse(num.Contents!);
-                    if (prefix == postfix) Infix.Add(contents, parsed);
-                    else if (prefix) Prefix.Add(contents, parsed);
-                    else Postfix.Add(contents, parsed);
+                    else if (next.Ty == TokenType.Prefix) Prefix.Add(contents!, parsed);
+                    else if (next.Ty == TokenType.Postfix) Postfix.Add(contents!, parsed);
                 }
                 else Advance();
             }
@@ -55,22 +120,28 @@ namespace ZirconLang.Parser
         public void PrintEntries()
         {
             Console.WriteLine("Infix Operators:");
-            foreach (var (op, prec) in Infix)
+            foreach (var (op, prec) in Binary)
             {
-                Console.WriteLine($"  {op}: prec {prec}");
+                Console.WriteLine($"  `{op}`: prec {prec}");
             }
-            
+
+            Console.WriteLine("---");
+
             Console.WriteLine("Prefix Operators:");
             foreach (var (op, prec) in Prefix)
             {
-                Console.WriteLine($"  {op}: prec {prec}");
+                Console.WriteLine($"  `{op}`: prec {prec}");
             }
-            
+
+            Console.WriteLine("---");
+
             Console.WriteLine("Postfix Operators:");
             foreach (var (op, prec) in Postfix)
             {
-                Console.WriteLine($"  {op}: prec {prec}");
+                Console.WriteLine($"  `{op}`: prec {prec}");
             }
+
+            Console.WriteLine("---");
         }
     }
 }

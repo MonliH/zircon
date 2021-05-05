@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace ZirconLang.Parser
@@ -12,18 +11,13 @@ namespace ZirconLang.Parser
             Span = span;
         }
 
-        public class Conditional : Expr
+        public class String : Expr
         {
-            public (Expr, Expr) IfBranch;
-            public List<(Expr, Expr)> ElsifBranches;
-            public Expr ElseBranch;
+            public string Value;
 
-            public Conditional((Expr, Expr) ifBranch, List<(Expr, Expr)> elsifBranches, Expr elseBranch,
-                Span span) : base(span)
+            public String(string value, Span span) : base(span)
             {
-                IfBranch = ifBranch;
-                ElsifBranches = elsifBranches;
-                ElseBranch = elseBranch;
+                Value = value;
             }
 
             public override T Accept<T>(IExprVisitor<T> visitor)
@@ -31,12 +25,27 @@ namespace ZirconLang.Parser
                 return visitor.Visit(this);
             }
         }
-
-        public class Literal : Expr
+        
+        public class Float : Expr
         {
-            public Object Value;
+            public double Value;
 
-            public Literal(object value, Span span) : base(span)
+            public Float(double value, Span span) : base(span)
+            {
+                Value = value;
+            }
+
+            public override T Accept<T>(IExprVisitor<T> visitor)
+            {
+                return visitor.Visit(this);
+            }
+        }
+        
+        public class Integer : Expr
+        {
+            public long Value;
+
+            public Integer(long value, Span span) : base(span)
             {
                 Value = value;
             }
@@ -135,8 +144,9 @@ namespace ZirconLang.Parser
 
     public interface IExprVisitor<out T>
     {
-        public T Visit(Expr.Conditional expr);
-        public T Visit(Expr.Literal expr);
+        public T Visit(Expr.Integer expr);
+        public T Visit(Expr.Float expr);
+        public T Visit(Expr.String expr);
         public T Visit(Expr.Application expr);
         public T Visit(Expr.Variable expr);
         public T Visit(Expr.Assignment expr);

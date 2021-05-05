@@ -77,11 +77,14 @@ namespace ZirconLang.Diagnostics
             this.errorMsg = errorMsg;
             this.type = type;
         }
-
+        
         public override void DisplayError(SourceMap sourceMap)
         {
             string filename = sourceMap.LookupFilename(errorSpan.Sid);
-            Console.WriteLine($"{filename}:{errorSpan.S}-{errorSpan.E}: {type.Name()}: {errorMsg}");
+            string file = sourceMap.LookupSource(errorSpan.Sid);
+            var (linenoS, colnoS) = Span.LineCol(errorSpan.S, file);
+            var (linenoE, colnoE) = Span.LineCol(errorSpan.E, file);
+            Console.WriteLine($"{filename}:{linenoS}:{colnoS}-{linenoE}:{colnoE}: {type.Name()}: {errorMsg}");
         }
     }
 

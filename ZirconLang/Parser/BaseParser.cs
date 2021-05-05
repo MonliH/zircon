@@ -20,6 +20,21 @@ namespace ZirconLang.Parser
         {
             return Consume(ty, $"Expected {ty.Display()}, found {Peek().Ty.Display()}");
         }
+        
+        protected Token Consume(string value, TokenType ty)
+        {
+            return Consume(value, ty, $"Expected {ty.Display()} `{value}`, found {Peek().Ty.Display()}");
+        }
+        
+        protected Token Consume(string value, TokenType ty, string msg)
+        {
+            if (Check(ty, value)) return Advance();
+            throw new ErrorBuilder()
+                .Msg(msg)
+                .Span(Peek().Span)
+                .Type(ErrorType.Syntax)
+                .Build();
+        }
 
         protected Token Consume(TokenType ty, string msg)
         {
@@ -45,6 +60,11 @@ namespace ZirconLang.Parser
             return false;
         }
 
+        protected Span CurrentSpan()
+        {
+            return Peek().Span;
+        }
+
         protected bool Match(params (TokenType, string)[] tys)
         {
             foreach (var (ty, contents) in tys)
@@ -59,6 +79,12 @@ namespace ZirconLang.Parser
             return false;
         }
 
+        protected bool CheckNext (TokenType tok)
+        {
+            if (IsAtEnd()) return false;
+            return PeekNext().Ty == tok;
+        }
+        
         protected bool Check(TokenType tok)
         {
             if (IsAtEnd()) return false;
@@ -68,8 +94,8 @@ namespace ZirconLang.Parser
         protected bool Check(TokenType tok, string contents)
         {
             if (IsAtEnd()) return false;
-            var peeked = Peek();
-            return peeked.Ty == tok && peeked.Contents == contents;
+            var (s, tokenType, _) = Peek();
+            return tokenType == tok && s == contents;
         }
 
         protected Token Advance()
@@ -81,6 +107,11 @@ namespace ZirconLang.Parser
         protected Token Peek()
         {
             return _stream[_index];
+        }
+        
+        protected Token PeekNext()
+        {
+            return Peek().Ty == TokenType.Eof ? Peek() : _stream[_index+1];
         }
 
         protected Token Prev()

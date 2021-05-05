@@ -1,20 +1,20 @@
-let (+) = (a b) => add a b
-opdef (+) 6
-let (-) = (a b) => sub a b
-opdef (-) 6
+let (+) = \a b -> add a b
+binop (+) 6 left
+let (-) = \a b -> sub a b
+binop (-) 6 left
 
-let (*) = (a b) => mul a b
-opdef (*) 5
-let (/) = (a b) => div a b
-opdef (/) 5
-let (%) = (a b) => mod a b
-opdef (%) 5
+let (*) = \a b -> mul a b
+binop (*) 5 left
+let (/) = \a b -> div a b
+binop (/) 5 left
+let (%) = \a b -> mod a b
+binop (%) 5 left
 
-let (==) = (a b) => eq a b
-opdef (==) 10
+let (==) = \a b -> eq a b
+binop (==) 10 left
 
-let @(-) = (a) => neg a
-opdef @(-) 3
+let @(-) = \a -> neg a
+preop (-) 3
 
-let (!)@ = (a) => fac a
-opdef (!)@ 3
+let (!)@ = \a -> fac a
+postop (!) 3

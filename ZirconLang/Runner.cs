@@ -1,4 +1,5 @@
 using System;
+using ZirconLang.Parser;
 
 namespace ZirconLang
 {
@@ -8,14 +9,15 @@ namespace ZirconLang
         {
             var lexer = new Lexer.Lexer(code, sid);
             var tokens = lexer.Lex();
-            foreach (Lexer.Token token in tokens)
-            {
-                Console.WriteLine($"{token.Ty}:{token.Span.S}:{token.Span.E}: `{token.Contents}`");
-            }
 
             var operators = new Parser.ExtractOps(tokens);
             operators.Extract();
             operators.PrintEntries();
+
+            var parser = new Parser.Parser(operators, tokens, new Span(0, 0, sid));
+            var expr = parser.ParseProgram();
+            var prettyPrinter = new AstPrinter();
+            Console.WriteLine(prettyPrinter.Print(expr));
         }
     }
 }

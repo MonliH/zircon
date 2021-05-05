@@ -1,2 +1,3 @@
-let id = (a) => a
-let const = (a _) => a
+let id = \a -> a
+preop (@) 10
+let const = \a b -> a

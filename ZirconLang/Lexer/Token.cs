@@ -6,10 +6,10 @@ namespace ZirconLang.Lexer
     public enum TokenType
     {
         // Symbols
-        LParen, RParen, LBrace, RBrace,
+        LParen, RParen, LBrace, RBrace, Backslash,
         
         // Keywords
-        Let, If, Elsif, Else, Opdef,
+        Let, Prefix, Postfix, Binary,
         
         // Literals
         String, Ident, Int, Float, Operator,
@@ -27,12 +27,12 @@ namespace ZirconLang.Lexer
                 case TokenType.RParen: return "token `)`";
                 case TokenType.LBrace: return "token `{`";
                 case TokenType.RBrace: return "token `}`";
+                case TokenType.Backslash: return "token `\\`";
                 
                 case TokenType.Let: return "keyword `let`";
-                case TokenType.If: return "keyword `if`";
-                case TokenType.Elsif: return "keyword `elsif`";
-                case TokenType.Else: return "keyword `else`";
-                case TokenType.Opdef: return "keyword `opdef`";
+                case TokenType.Prefix: return "keyword `preop`";
+                case TokenType.Postfix: return "keyword `postop`";
+                case TokenType.Binary: return "keyword `binop`";
                 
                 case TokenType.String: return "string";
                 case TokenType.Ident: return "identifier";

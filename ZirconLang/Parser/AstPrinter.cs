@@ -1,33 +1,45 @@
-using System.Linq;
+using System.Globalization;
 using System.Text;
 
 namespace ZirconLang.Parser
 {
     public class AstPrinter : IExprVisitor<string>
     {
-        string print(Expr expr)
+        private int _indentation;
+        
+        public string Print(Expr expr)
         {
             return expr.Accept(this);
         }
 
-        public string Visit(Expr.Literal lit)
+        public string Visit(Expr.Float lit)
         {
-            return lit.Value.ToString() ?? "null";
+            return lit.Value.ToString(CultureInfo.CurrentCulture);
+        }
+        
+        public string Visit(Expr.String lit)
+        {
+            return $"\"{lit.Value}\"";
+        }
+        
+        public string Visit(Expr.Integer lit)
+        {
+            return lit.Value.ToString();
         }
 
         public string Visit(Expr.Application app)
         {
-            return MakeParend("application", app.Fn, app.Arg);
+            return MakeParend("app", app.Fn, app.Arg);
         }
 
         public string Visit(Expr.Variable variable)
         {
-            return variable.Name;
+            return $"`{variable.Name}`";
         }
 
         public string Visit(Expr.Assignment assign)
         {
-            return MakeParend("assignment", assign.Name, assign.Value);
+            return MakeParend("assign", assign.Name, assign.Value);
         }
 
         public string Visit(Expr.Sequence seq)
@@ -37,24 +49,7 @@ namespace ZirconLang.Parser
         
         public string Visit(Expr.Lambda lam)
         {
-            return MakeParend("lambda", lam.Arg, lam.Body);
-        }
-
-        public string Visit(Expr.Conditional cond)
-        {
-            return MakeParend(new string[4]
-                {
-                    "cond",
-                    MakeParend("if", cond.IfBranch.Item1, cond.IfBranch.Item2),
-                    MakeParend("elsif",
-                        cond.ElsifBranches
-                            .Select(
-                                (c) => MakeParend("cond", c.Item1, c.Item2)
-                            ).ToArray()
-                    ),
-                    MakeParend("else", cond.ElseBranch)
-                }
-            );
+            return MakeParend("lam", lam.Arg, lam.Body);
         }
 
         private string MakeParend(string str, params Expr[] exprs)
@@ -62,18 +57,17 @@ namespace ZirconLang.Parser
             return MakeParend(new string[1] {str}, exprs);
         }
 
-        private string MakeParend(string str, params string[] strings)
+        private string Indent()
         {
-            StringBuilder builder = new StringBuilder();
-            builder.Append("(").Append(str).Append(" ").Append(string.Join(" ", strings)).Append(")");
-            return builder.ToString();
+            return new string(' ', _indentation * 2);
         }
 
         private string MakeParend(string[] strs, params Expr[] exprs)
         {
             StringBuilder builder = new StringBuilder();
+            ++_indentation;
 
-            builder.Append("(").Append(string.Join(" ", strs)).Append(" ");
+            builder.Append("(\n").Append(Indent()).Append(string.Join(" ", strs));
 
             foreach (Expr expr in exprs)
             {
@@ -81,7 +75,8 @@ namespace ZirconLang.Parser
                 builder.Append(expr.Accept(this));
             }
 
-            builder.Append(")");
+            --_indentation;
+            builder.Append($"\n{Indent()})");
 
             return builder.ToString();
         }
