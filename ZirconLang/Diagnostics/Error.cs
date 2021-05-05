@@ -51,7 +51,7 @@ namespace ZirconLang.Diagnostics
         {
             if (_errorMsg != null && _errorSpan != null && _ty != null)
             {
-                return new Error(_errorSpan, _errorMsg, (ErrorType)_ty);
+                return new Error(_errorSpan, _errorMsg, (ErrorType) _ty);
             }
             else
             {
@@ -60,7 +60,12 @@ namespace ZirconLang.Diagnostics
         }
     }
 
-    public class Error
+    public abstract class ErrorDisplay : Exception
+    {
+        public abstract void DisplayError(SourceMap sourceMap);
+    }
+
+    public class Error : ErrorDisplay
     {
         private Span errorSpan;
         private string errorMsg;
@@ -73,14 +78,14 @@ namespace ZirconLang.Diagnostics
             this.type = type;
         }
 
-        public void DisplayError(SourceMap sourceMap)
+        public override void DisplayError(SourceMap sourceMap)
         {
             string filename = sourceMap.LookupFilename(errorSpan.Sid);
             Console.WriteLine($"{filename}:{errorSpan.S}-{errorSpan.E}: {type.Name()}: {errorMsg}");
         }
     }
 
-    public class Errors : Exception
+    public class Errors : ErrorDisplay
     {
         private readonly List<Error> _errs;
 
@@ -89,7 +94,7 @@ namespace ZirconLang.Diagnostics
             this._errs = errs;
         }
 
-        public void DisplayErrors(SourceMap sourceMap)
+        public override void DisplayError(SourceMap sourceMap)
         {
             foreach (Error err in _errs)
             {

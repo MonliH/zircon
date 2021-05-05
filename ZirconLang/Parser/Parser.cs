@@ -1,4 +1,4 @@
-namespace ZirconLang
+namespace ZirconLang.Parser
 {
     public class Parser
     {

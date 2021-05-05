@@ -25,9 +25,9 @@ namespace ZirconLang
                     Runner.Run(smap.LookupSource(sid), sid);
                 }
             }
-            catch (Diagnostics.Errors e)
+            catch (Diagnostics.ErrorDisplay e)
             {
-                e.DisplayErrors(smap);
+                e.DisplayError(smap);
             }
         }
 
