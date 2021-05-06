@@ -1,4 +1,5 @@
 using System;
+using ZirconLang.Interpreter;
 using ZirconLang.Lexer;
 using ZirconLang.Parser;
 
@@ -6,8 +7,9 @@ namespace ZirconLang
 {
     public class Runner
     {
-        public static void Run(string code, SourceId sid, Options opts)
+        public static Value Run(string code, SourceId sid, Options opts)
         {
+            
             var lexer = new Lexer.Lexer(code, sid);
             var tokens = lexer.Lex();
             if (opts.DebugLexer)
@@ -32,6 +34,9 @@ namespace ZirconLang
                 var prettyPrinter = new AstPrinter();
                 Console.WriteLine(prettyPrinter.Print(expr));
             }
+            
+            GlobalVars globals = new GlobalVars();
+            return InterpreterVisitor.Interpret(globals.GetGlobals(), expr);
         }
     }
 }

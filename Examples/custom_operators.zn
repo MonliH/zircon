@@ -18,3 +18,5 @@ preop (-) 3
 
 let (!)@ = \a -> fac a
 postop (!) 3
+
+12!

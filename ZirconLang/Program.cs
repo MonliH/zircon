@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using System;
+using CommandLine;
 
 namespace ZirconLang
 {
@@ -34,6 +35,7 @@ namespace ZirconLang
             catch (Diagnostics.ErrorDisplay e)
             {
                 e.DisplayError(smap);
+                Environment.Exit(1);
             }
         }
 

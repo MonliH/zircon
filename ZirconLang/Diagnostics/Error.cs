@@ -8,6 +8,9 @@ namespace ZirconLang.Diagnostics
     {
         Lexer = 0,
         Syntax = 1,
+        UnboundVariable = 2,
+        Type = 3,
+        Scope = 4,
     }
 
     static class ErrorTypeMethods
@@ -18,6 +21,9 @@ namespace ZirconLang.Diagnostics
             {
                 case ErrorType.Syntax: return "syntax";
                 case ErrorType.Lexer: return "lexer";
+                case ErrorType.UnboundVariable: return "unbound_variable";
+                case ErrorType.Type: return "type";
+                case ErrorType.Scope: return "scope";
                 default: return "";
             }
         }
@@ -84,22 +90,22 @@ namespace ZirconLang.Diagnostics
             string file = sourceMap.LookupSource(errorSpan.Sid);
             var (linenoS, colnoS) = Span.LineCol(errorSpan.S, file);
             var (linenoE, colnoE) = Span.LineCol(errorSpan.E, file);
-            Console.WriteLine($"{filename}:{linenoS}:{colnoS}-{linenoE}:{colnoE}: {type.Name()}: {errorMsg}");
+            Console.WriteLine($"{filename}:{linenoS}:{colnoS}-{linenoE}:{colnoE}: {type.Name()}_error: {errorMsg}");
         }
     }
 
     public class Errors : ErrorDisplay
     {
-        private readonly List<Error> _errs;
+        private readonly List<ErrorDisplay> _errs;
 
-        public Errors(List<Error> errs)
+        public Errors(List<ErrorDisplay> errs)
         {
             this._errs = errs;
         }
 
         public override void DisplayError(SourceMap sourceMap)
         {
-            foreach (Error err in _errs)
+            foreach (ErrorDisplay err in _errs)
             {
                 err.DisplayError(sourceMap);
             }

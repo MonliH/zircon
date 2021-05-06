@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using ZirconLang.Diagnostics;
 using ZirconLang.Lexer;
@@ -9,7 +8,7 @@ namespace ZirconLang.Parser
 {
     public class Parser : BaseParser
     {
-        private ExtractOps _ops;
+        private readonly ExtractOps _ops;
         private readonly Span _def;
         private static string _fnApp = "<fn app>";
 
@@ -25,19 +24,29 @@ namespace ZirconLang.Parser
             var exprs = new List<Expr>();
             while (!IsAtEnd() && !Check(TokenType.RBrace))
             {
-                if (Check(TokenType.Prefix) || Check(TokenType.Postfix) || Check(TokenType.Binary))
+                try
                 {
-                    Token keyword = Advance();
-                    Consume(TokenType.LParen);
-                    Consume(TokenType.Operator);
-                    Consume(TokenType.RParen);
-                    Consume(TokenType.Int);
-                    if (keyword.Ty == TokenType.Binary) Consume(TokenType.Ident);
+                    if (Check(TokenType.Prefix) || Check(TokenType.Postfix) || Check(TokenType.Binary))
+                    {
+                        Token keyword = Advance();
+                        Consume(TokenType.LParen);
+                        Consume(TokenType.Operator);
+                        Consume(TokenType.RParen);
+                        Consume(TokenType.Int);
+                        if (keyword.Ty == TokenType.Binary) Consume(TokenType.Ident);
+                    }
+                    else exprs.Add(ParseExpr());
                 }
-                else exprs.Add(ParseExpr());
+                catch (ErrorDisplay e)
+                {
+                    AddError(e);
+                    Synchronize();
+                }
 
                 while (Check(TokenType.LineBreak)) Consume(TokenType.LineBreak);
             }
+            
+            RaiseErrors();
 
             if (exprs.Any()) return new Expr.Sequence(exprs, exprs.First().Span.Combine(exprs.Last().Span));
             return new Expr.Sequence(new List<Expr>(), _def);
@@ -104,14 +113,13 @@ namespace ZirconLang.Parser
         {
             Span prev = CurrentSpan();
             Consume(TokenType.Backslash);
-            List<Expr.Variable> args = new List<Expr.Variable>();
-            args.Add(ParseVar());
+            List<Expr.Variable> args = new List<Expr.Variable> {ParseVar()};
             while (!IsAtEnd() && Check(TokenType.Ident))
             {
                 args.Add(ParseVar());
             }
 
-            Consume("->", TokenType.Operator);
+            Consume(TokenType.Arrow);
 
             Expr e = ParseExpr();
             Span lambdaSpan = prev.Combine(e.Span);
@@ -155,7 +163,8 @@ namespace ZirconLang.Parser
                     // Possible postfix operator
                     if (_ops.Postfix.ContainsKey(op.Contents!) && // If it's contained as a postfix op...
                         // ... and it isn't a binary operator, or it's at the end of a line/eof/paren
-                        (!_ops.Binary.ContainsKey(op.Contents!) || IsAtEnd() || Check(TokenType.LineBreak) || Check(TokenType.RParen)))
+                        (!_ops.Binary.ContainsKey(op.Contents!) || IsAtEnd() || Check(TokenType.LineBreak) ||
+                         Check(TokenType.RParen)))
                     {
                         // then it's a postfix operator!
                         var lBpPost = _ops.PostfixBp(op.Contents!, op.Span);
@@ -184,6 +193,7 @@ namespace ZirconLang.Parser
 
                 Expr rhs = ParseExpr(rBp);
                 Span sp = item.Span.Combine(rhs.Span);
+                
                 if (op.Contents == _fnApp)
                 {
                     item = new Expr.Application(item, rhs, sp);

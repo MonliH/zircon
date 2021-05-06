@@ -1,1 +1,21 @@
-print "Hello, World!"
+let true = \a b -> a
+let false = \a b -> b
+
+let nill = unit
+let cons = \a b f -> f a b
+let fst = \a -> a true
+let snd = \a -> a false
+
+let ($) = \a b -> a b
+binop ($) 1 right
+
+let (:) = \a b -> cons a b
+binop (:) 4 left
+
+let tail = snd
+let zipWith = \f a b -> 
+    (f (fst a) $ fst b) : ((zipWith f) (snd a) (snd b))
+
+let fibs = (0 : 1) : zipWith add fibs (snd fibs)
+
+print $ fst $ fibs

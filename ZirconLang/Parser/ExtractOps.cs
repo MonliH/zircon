@@ -42,30 +42,30 @@ namespace ZirconLang.Parser
             {
                 return Prefix[op];
             }
-            
+
             if (Binary.ContainsKey(op) || Postfix.ContainsKey(op))
             {
                 throw new ErrorBuilder().Msg($"`{op}` is not a prefix operator").Span(span).Type(ErrorType.Syntax)
                     .Build();
             }
-            
+
             InvalidOp(op, span);
             throw new InvalidOperationException("Should not be here");
         }
-        
+
         public int PostfixBp(string op, Span span)
         {
             if (Postfix.ContainsKey(op))
             {
                 return Postfix[op];
             }
-            
+
             if (Binary.ContainsKey(op) || Prefix.ContainsKey(op))
             {
                 throw new ErrorBuilder().Msg($"`{op}` is not a postfix operator").Span(span).Type(ErrorType.Syntax)
                     .Build();
             }
-            
+
             InvalidOp(op, span);
             throw new InvalidOperationException("Should not be here");
         }
@@ -97,21 +97,29 @@ namespace ZirconLang.Parser
                 if (Check(TokenType.Binary) || Check(TokenType.Prefix) || Check(TokenType.Postfix))
                 {
                     Token next = Advance();
-                    var (contents, _, _) = ExtractOp();
-                    Token num = Consume(TokenType.Int, $"Expected precedence declaration for operator {contents!}");
+                    var (contents, _, sp) = ExtractOp();
+                    Token num = Consume(TokenType.Int, $"expected precedence declaration for operator {contents!}");
                     var parsed = int.Parse(num.Contents!) * 10;
-                    if (next.Ty == TokenType.Binary)
+                    try
                     {
-                        var assoc = Assoc.Left;
-                        if (Check(TokenType.Ident, "left")) assoc = Assoc.Left;
-                        else if (Check(TokenType.Ident, "right")) assoc = Assoc.Right;
-                        else
-                            throw new ErrorBuilder().Msg("Expected an associativity of `left` or `right`")
-                                .Span(CurrentSpan()).Type(ErrorType.Syntax).Build();
-                        Binary.Add(contents!, (parsed, assoc));
+                        if (next.Ty == TokenType.Binary)
+                        {
+                            var assoc = Assoc.Left;
+                            if (Check(TokenType.Ident, "left")) assoc = Assoc.Left;
+                            else if (Check(TokenType.Ident, "right")) assoc = Assoc.Right;
+                            else
+                                throw new ErrorBuilder().Msg("expected an associativity of `left` or `right`")
+                                    .Span(CurrentSpan()).Type(ErrorType.Syntax).Build();
+                            Binary.Add(contents!, (parsed, assoc));
+                        }
+                        else if (next.Ty == TokenType.Prefix) Prefix.Add(contents!, parsed);
+                        else if (next.Ty == TokenType.Postfix) Postfix.Add(contents!, parsed);
                     }
-                    else if (next.Ty == TokenType.Prefix) Prefix.Add(contents!, parsed);
-                    else if (next.Ty == TokenType.Postfix) Postfix.Add(contents!, parsed);
+                    catch (ArgumentException)
+                    {
+                        throw new ErrorBuilder().Msg($"cannot redefine the operator {contents!}").Type(ErrorType.Scope)
+                            .Span(sp).Build();
+                    }
                 }
                 else Advance();
             }

@@ -1,16 +1,15 @@
-using System;
 using System.Collections.Generic;
 using ZirconLang.Diagnostics;
 using ZirconLang.Lexer;
 
 namespace ZirconLang.Parser
 {
-    public class BaseParser
+    public class BaseParser : Failable
     {
         private List<Token> _stream;
         private int _index;
 
-        public BaseParser(List<Token> stream)
+        protected BaseParser(List<Token> stream)
         {
             _index = 0;
             _stream = stream;
@@ -96,6 +95,25 @@ namespace ZirconLang.Parser
             if (IsAtEnd()) return false;
             var (s, tokenType, _) = Peek();
             return tokenType == tok && s == contents;
+        }
+
+        protected void Synchronize()
+        {
+            Advance();
+            while (!IsAtEnd())
+            {
+                if (Prev().Ty == TokenType.LineBreak) return;
+                switch (Peek().Ty)
+                {
+                    case TokenType.Let:
+                    case TokenType.Prefix:
+                    case TokenType.Postfix:
+                    case TokenType.Binary:
+                        return;
+                }
+
+                Advance();
+            }
         }
 
         protected Token Advance()

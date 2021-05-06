@@ -72,6 +72,7 @@ namespace ZirconLang.Lexer
             switch (Tokens.Count > 0 ? Tokens.Last().Ty : TokenType.Eof)
             {
                 case TokenType.RBrace:
+                case TokenType.Operator:
                 case TokenType.Ident:
                 case TokenType.Int:
                 case TokenType.Float:
@@ -119,6 +120,15 @@ namespace ZirconLang.Lexer
                 case '"':
                     EatString();
                     break;
+
+                case '-':
+                    if (Peek() == '>')
+                    {
+                        Advance();
+                        AddToken(TokenType.Arrow);
+                        break;
+                    }
+                    else goto default;
 
                 default:
                     if (IsDigit(c))

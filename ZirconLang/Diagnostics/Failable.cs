@@ -5,19 +5,19 @@ namespace ZirconLang.Diagnostics
 {
     public class Failable
     {
-        private readonly List<Error> _errors;
+        private readonly List<ErrorDisplay> _errors;
 
         protected Failable()
         {
-            _errors = new List<Error>();
+            _errors = new List<ErrorDisplay>();
         }
 
-        protected void AddError(Error err)
+        protected void AddError(ErrorDisplay err)
         {
             _errors.Add(err);
         }
 
-        protected List<Error> GetErrors()
+        protected List<ErrorDisplay> GetErrors()
         {
             return _errors;
         }
