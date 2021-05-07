@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 
@@ -95,7 +94,7 @@ namespace ZirconLang.Diagnostics
             _trace.Add(trace);
         }
 
-        private (string, int, int, int, int) getHumanPos(Span sp, SourceMap sourceMap)
+        private (string, int, int, int, int) GetHumanPos(Span sp, SourceMap sourceMap)
         {
             string filename = sourceMap.LookupFilename(sp.Sid);
             string file = sourceMap.LookupSource(sp.Sid);
@@ -104,7 +103,7 @@ namespace ZirconLang.Diagnostics
             return (filename, linenoS, colnoS, linenoE, colnoE);
         }
 
-        private string formatLines(string[] lines, int lineS, int colS, int lineE, int colE)
+        private string FormatLines(string[] lines, int lineS, int colS, int lineE, int colE)
         {
             StringBuilder builder = new StringBuilder();
             int digits = (int) Math.Floor(Math.Log10(lineE) + 1);
@@ -113,6 +112,18 @@ namespace ZirconLang.Diagnostics
                 string line = lines[lIdx - 1];
                 builder.Append(
                     $"  {Color.Reset.ToS()}{Color.NicePurple.ToS()}{lIdx.ToString().PadLeft(digits, ' ')}{Color.Reset.ToS()} | ");
+
+                if (lineS == lineE)
+                {
+                    // Starting line
+                    builder.Append($"{line.Substring(0, colS - 1)}{Color.Bold.ToS()}{Color.Red.ToS()}");
+                    builder.Append(line.Substring(colS - 1, colE - colS));
+                    builder.Append(Color.Reset.ToS());
+                    builder.Append(line.Substring(colE - 1));
+                    builder.Append("\n");
+                    continue;
+                }
+
                 if (lIdx == lineS)
                 {
                     // Starting line
@@ -143,19 +154,20 @@ namespace ZirconLang.Diagnostics
             return builder.ToString();
         }
 
-        private string formatLocation(Span sp, SourceMap sourceMap)
+        private string FormatLocation(Span sp, SourceMap sourceMap)
         {
-            var (filename, linenoS, colnoS, linenoE, colnoE) = getHumanPos(sp, sourceMap);
+            var (filename, linenoS, colnoS, linenoE, colnoE) = GetHumanPos(sp, sourceMap);
             return $"{filename}:{linenoS}:{colnoS}-{linenoE}:{colnoE}";
         }
 
-        private void formatEntry(Span sp, SourceMap sourceMap, string additional)
+        private void FormatEntry(Span sp, SourceMap sourceMap, string additional)
         {
-            Console.WriteLine($"{formatLocation(sp, sourceMap)}: {additional}");
-            var (_, a, b, c, d) = getHumanPos(sp, sourceMap);
-            Console.Write(formatLines(sourceMap.LookupSource(sp.Sid).Split("\n"), a, b, c, d));
+            Console.Write($"{Color.NicePurple.ToS()}{FormatLocation(sp, sourceMap)}{Color.Reset.ToS()}: ");
+            Console.WriteLine($"{Color.Bold.ToS()}{Color.Red.ToS()}{additional}{Color.Reset.ToS()}");
+            var (_, a, b, c, d) = GetHumanPos(sp, sourceMap);
+            Console.Write(FormatLines(sourceMap.LookupSource(sp.Sid).Split("\n"), a, b, c, d));
         }
-
+        
         public override void DisplayError(SourceMap sourceMap)
         {
             if (_trace.Any())
@@ -165,26 +177,28 @@ namespace ZirconLang.Diagnostics
                 _trace.RemoveAt(_trace.Count - 1);
                 foreach (Span trace in _trace)
                 {
-                    formatEntry(trace, sourceMap, "trace");
+                    FormatEntry(trace, sourceMap, ColorExt.Surround("trace", Color.Red));
                 }
             }
 
-            formatEntry(_errorSpan, sourceMap, $"{_type.Name()}_error: {_errorMsg}");
+            string newErrMsg = ColorExt.Surround(_errorMsg, Color.Bold);
+            string errName = ColorExt.Surround($"{_type.Name()}_error", Color.Bold, Color.Red);
+            FormatEntry(_errorSpan, sourceMap, $"{errName}: {newErrMsg}");
         }
     }
 
     public class Errors : ErrorDisplay
     {
-        private readonly List<ErrorDisplay> _errs;
+        private readonly List<Error> _errs;
 
-        public Errors(List<ErrorDisplay> errs)
+        public Errors(List<Error> errs)
         {
             this._errs = errs;
         }
 
         public override void DisplayError(SourceMap sourceMap)
         {
-            foreach (ErrorDisplay err in _errs)
+            foreach (Error err in _errs)
             {
                 err.DisplayError(sourceMap);
             }

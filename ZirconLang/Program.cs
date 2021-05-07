@@ -1,5 +1,6 @@
 ﻿using System;
 using CommandLine;
+using ZirconLang.Builtins;
 using ZirconLang.Interpreter;
 
 namespace ZirconLang
@@ -21,8 +22,19 @@ namespace ZirconLang
     {
         static void RunOptions(Options opts)
         {
-            Runner runner = new Runner();
-            SourceMap smap = new SourceMap();
+            Runner runner = new ();
+            SourceMap smap = new ();
+
+            try
+            {
+                LoadBuiltins.Load(smap, runner, new Options());
+            }
+            catch (Diagnostics.ErrorDisplay e)
+            {
+                e.DisplayError(smap);
+                Environment.Exit(1);
+            }
+
             if (opts.Filename != null)
             {
                 string filename = opts.Filename;
@@ -51,6 +63,7 @@ namespace ZirconLang
                         Console.WriteLine("\nbye.");
                         break;
                     }
+
                     SourceId sid = smap.AddSource(input, "<repl_input>");
                     try
                     {

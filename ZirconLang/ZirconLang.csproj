@@ -7,7 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
+        <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="$(SolutionDir)/ZirconLang/Builtins/*.zn">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 </Project>

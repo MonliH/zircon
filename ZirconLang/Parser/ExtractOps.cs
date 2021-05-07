@@ -110,10 +110,10 @@ namespace ZirconLang.Parser
                             else
                                 throw new ErrorBuilder().Msg("expected an associativity of `left` or `right`")
                                     .Span(CurrentSpan()).Type(ErrorType.Syntax).Build();
-                            Binary.Add(contents!, (parsed, assoc));
+                            Binary[contents!] = (parsed, assoc);
                         }
-                        else if (next.Ty == TokenType.Prefix) Prefix.Add(contents!, parsed);
-                        else if (next.Ty == TokenType.Postfix) Postfix.Add(contents!, parsed);
+                        else if (next.Ty == TokenType.Prefix) Prefix[contents!] = parsed;
+                        else if (next.Ty == TokenType.Postfix) Postfix[contents!] = parsed;
                     }
                     catch (ArgumentException)
                     {

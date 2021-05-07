@@ -16,7 +16,7 @@ namespace ZirconLang.Parser
         {
             _ops = ops;
             _def = def;
-            _ops.Binary.Add(_fnApp, (10, Assoc.Left));
+            _ops.Binary[_fnApp] = (5 * 10, Assoc.Left);
         }
 
         public Expr ParseProgram()
@@ -37,7 +37,7 @@ namespace ZirconLang.Parser
                     }
                     else exprs.Add(ParseExpr());
                 }
-                catch (ErrorDisplay e)
+                catch (Error e)
                 {
                     AddError(e);
                     Synchronize();
@@ -45,7 +45,7 @@ namespace ZirconLang.Parser
 
                 while (Check(TokenType.LineBreak)) Consume(TokenType.LineBreak);
             }
-            
+
             RaiseErrors();
 
             if (exprs.Any()) return new Expr.Sequence(exprs, exprs.First().Span.Combine(exprs.Last().Span));
@@ -56,6 +56,7 @@ namespace ZirconLang.Parser
         {
             Consume(TokenType.LBrace);
             Expr program = ParseProgram();
+            Match(TokenType.LineBreak);
             Consume(TokenType.RBrace);
             return program;
         }
@@ -193,7 +194,7 @@ namespace ZirconLang.Parser
 
                 Expr rhs = ParseExpr(rBp);
                 Span sp = item.Span.Combine(rhs.Span);
-                
+
                 if (op.Contents == _fnApp)
                 {
                     item = new Expr.Application(item, rhs, sp);
@@ -248,6 +249,7 @@ namespace ZirconLang.Parser
                 var s = CurrentSpan();
                 Advance();
                 Expr e = ParseExpr();
+                Match(TokenType.LineBreak);
                 var paren = Consume(TokenType.RParen);
                 e.Span = s.Combine(paren.Span);
                 return e;

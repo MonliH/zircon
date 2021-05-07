@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -5,19 +6,19 @@ namespace ZirconLang.Diagnostics
 {
     public class Failable
     {
-        private readonly List<ErrorDisplay> _errors;
+        private readonly List<Error> _errors;
 
         protected Failable()
         {
-            _errors = new List<ErrorDisplay>();
+            _errors = new List<Error>();
         }
 
-        protected void AddError(ErrorDisplay err)
+        protected void AddError(Error err)
         {
             _errors.Add(err);
         }
 
-        protected List<ErrorDisplay> GetErrors()
+        protected List<Error> GetErrors()
         {
             return _errors;
         }

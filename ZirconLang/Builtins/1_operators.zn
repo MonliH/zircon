@@ -1,0 +1,41 @@
+let ($) = \a b -> a b
+binop ($) 1 right
+
+let (.) = \f g x -> f $ g x
+binop (.) 2 right
+
+let (&&) = \a b -> if a b false
+binop (&&) 7 left
+let (||) = \a b -> if a true b
+binop (||) 6 left
+let @(!) = \a -> if a false true
+preop (!) 14
+
+let (+) = add
+binop (+) 12 left
+let (-) = sub
+binop (-) 12 left
+
+let (*) = mul
+binop (*) 13 left
+let (/) = div
+binop (/) 13 left
+let (%) = mod
+binop (%) 13 left
+
+let (<) = lt
+binop (<) 9 left
+
+let (<=) = \a b -> a < b || a == b
+binop (<=) 9 left
+
+let (>=) = \a b -> !(a < b)
+binop (>=) 9 left
+
+let (>) = \a b -> !(a <= b)
+binop (>) 9 left
+
+let (==) = eq
+binop (==) 8 left
+let (!=) = \a b -> !(eq a b)
+binop (!=) 8 left

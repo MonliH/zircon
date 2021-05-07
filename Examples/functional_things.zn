@@ -1,3 +1,0 @@
-let id = \a -> a
-preop (@) 10
-let const = \a b -> a

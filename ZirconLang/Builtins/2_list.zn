@@ -1,0 +1,20 @@
+let nill = unit
+let cons = \a b f -> f a b
+
+let (:) = cons
+binop (:) 3 right
+
+let fst = \a b -> a
+let snd = \a b -> b
+
+let head = \a -> a fst
+let tail = \a -> a snd
+
+let zip_with = \f a b -> 
+    if (a == nill || b == nill) nill $ (f (head a) $ head b) : (zip_with f (tail a) $ tail b)
+let map = \f list ->
+    f (head list) : map f (tail list)
+    
+let index = \list idx -> if idx == 0 (head list) (index list $ idx - 1)
+let (!!) = index
+binop (!!) 20 left

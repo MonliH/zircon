@@ -1,25 +1,22 @@
 # Comment here!
-let fizzbuzz' = 
-    \a b -> if (a <= b) {
-        if (a % 3 == 0 && a % 5 == 0) {
+let fizzbuzz' = \a b -> if (a <= b) {
+        if (a % 3 == 0 && a % 5 == 0) (
             print "fizzbuzz"
-        } else {
-            if (a % 3 == 0) {
+        ) (
+            if (a % 3 == 0) (
                 print "fizz"
-            } else {
-                if (a % 5 == 0) {
+            ) (
+                if (a % 5 == 0) (
                     print "buzz"
-                } else {
-                    print b
-                }
-            }
-        }
-        fizzbuzz' (a - 1) b
-    } else {
-        null
-    }
+                ) (
+                    print a
+                )
+            )
+        )
+        fizzbuzz' (a + 1) b
+    } unit
 
 # Curried functions
-let fizzbuzz = fizzbuzz' 0
+let fizzbuzz = fizzbuzz' 1
 
 fizzbuzz 15

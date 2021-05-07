@@ -15,6 +15,12 @@ namespace ZirconLang.Parser
             _stream = stream;
         }
 
+        public void SetStream(List<Token> stream)
+        {
+            _stream = stream;
+            _index = 0;
+        }
+
         protected Token Consume(TokenType ty)
         {
             return Consume(ty, $"Expected {ty.Display()}, found {Peek().Ty.Display()}");
@@ -102,7 +108,6 @@ namespace ZirconLang.Parser
             Advance();
             while (!IsAtEnd())
             {
-                if (Prev().Ty == TokenType.LineBreak) return;
                 switch (Peek().Ty)
                 {
                     case TokenType.Let:
