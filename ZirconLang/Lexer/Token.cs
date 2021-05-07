@@ -6,7 +6,7 @@ namespace ZirconLang.Lexer
     public enum TokenType
     {
         // Symbols
-        LParen, RParen, LBrace, RBrace, Backslash, Arrow,
+        LParen, RParen, LBrace, RBrace, Backslash, Arrow, At,
         
         // Keywords
         Let, Prefix, Postfix, Binary,
@@ -24,6 +24,7 @@ namespace ZirconLang.Lexer
             switch (ty)
             {
                 case TokenType.LParen: return "token `(`";
+                case TokenType.At: return "token `@`";
                 case TokenType.RParen: return "token `)`";
                 case TokenType.LBrace: return "token `{`";
                 case TokenType.RBrace: return "token `}`";

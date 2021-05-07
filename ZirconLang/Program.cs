@@ -22,8 +22,8 @@ namespace ZirconLang
     {
         static void RunOptions(Options opts)
         {
-            Runner runner = new ();
-            SourceMap smap = new ();
+            Runner runner = new();
+            SourceMap smap = new();
 
             try
             {
@@ -67,7 +67,9 @@ namespace ZirconLang
                     SourceId sid = smap.AddSource(input, "<repl_input>");
                     try
                     {
-                        Console.WriteLine(ValuePrinter.Print(runner.Run(smap.LookupSource(sid), sid, opts)));
+                        Value val = runner.Run(smap.LookupSource(sid), sid, opts);
+                        if (val.Type() != TypeName.Unit)
+                            Console.WriteLine(ValuePrinter.Print(val));
                     }
                     catch (Diagnostics.ErrorDisplay e)
                     {

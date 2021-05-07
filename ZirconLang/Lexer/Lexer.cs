@@ -88,6 +88,9 @@ namespace ZirconLang.Lexer
             var c = Advance();
             switch (c)
             {
+                case '@':
+                    AddToken(TokenType.At);
+                    break;
                 case '(':
                     AddToken(TokenType.LParen);
                     break;
@@ -193,7 +196,7 @@ namespace ZirconLang.Lexer
 
         private bool IsOperator(char c)
         {
-            return "!@$%^&*:~/?><.|-=+".Contains(c);
+            return "!$%^&*:~/?><.|-=+".Contains(c);
         }
 
         private bool IsAlpha(char c)

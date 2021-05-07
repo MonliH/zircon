@@ -16,6 +16,9 @@ binop (+) 12 left
 let (-) = sub
 binop (-) 12 left
 
+let @(-) = neg
+preop (-) 14
+
 let (*) = mul
 binop (*) 13 left
 let (/) = div

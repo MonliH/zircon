@@ -69,7 +69,7 @@ namespace ZirconLang.Parser
                 return new Expr.Variable(var.Contents!, false, var.Span);
             }
 
-            if (!Check(TokenType.LParen) && !Check(TokenType.Operator, "@"))
+            if (!Check(TokenType.LParen) && !Check(TokenType.At))
                 throw new ErrorBuilder()
                     .Msg($"expected identifier or operator, found {Peek().Ty.Display()}")
                     .Span(Peek().Span)
@@ -78,7 +78,7 @@ namespace ZirconLang.Parser
 
             var prefix = false;
             var postfix = false;
-            if (Match((TokenType.Operator, "@")))
+            if (Match((TokenType.At)))
             {
                 prefix = true;
             }
@@ -87,7 +87,7 @@ namespace ZirconLang.Parser
             Token op = Consume(TokenType.Operator);
             Consume(TokenType.RParen);
 
-            if (Match((TokenType.Operator, "@")))
+            if (Match((TokenType.At)))
             {
                 postfix = true;
             }
@@ -239,7 +239,8 @@ namespace ZirconLang.Parser
                 return new Expr.String(str.Contents!, str.Span);
             }
 
-            if (Check(TokenType.Ident) || (Check(TokenType.LParen) && CheckNext(TokenType.Operator)))
+            if (Check(TokenType.Ident) || (Check(TokenType.LParen) && CheckNext(TokenType.Operator)) ||
+                (Check(TokenType.At) && CheckNext(TokenType.LParen)))
             {
                 return ParseVar();
             }

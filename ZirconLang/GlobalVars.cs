@@ -162,6 +162,23 @@ namespace ZirconLang
                     return new Value.VInt(((Value.VInt) first).Value % ((Value.VInt) second).Value, combined);
                 }, GlobalSpan), GlobalSpan)), GlobalSpan);
 
+            _globals.Define("neg", new Thunk(() => new Value.VLambda((Thunk fst) =>
+                {
+                    Value first = fst.Force();
+                    TypeName fstTy = first.Type();
+                    switch (fstTy)
+                    {
+                        case TypeName.Int:
+                            return new Value.VInt(-((Value.VInt) first).Value, first.Span);
+                        case TypeName.Real:
+                            return new Value.VFloat(-((Value.VFloat) first).Value, first.Span);
+                        default:
+                            throw new ErrorBuilder()
+                                .Msg($"cannot negate the type `{fstTy.Display()}`")
+                                .Type(ErrorType.Type).Span(first.Span).Build();
+                    }
+                }, GlobalSpan)), GlobalSpan);
+            
             _globals.Define("sub", new Thunk(() => new Value.VLambda((Thunk fst) =>
                 new Value.VLambda((Thunk snd) =>
                 {
