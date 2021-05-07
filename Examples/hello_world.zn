@@ -1,21 +1,46 @@
-let true = \a b -> a
-let false = \a b -> b
-
 let nill = unit
 let cons = \a b f -> f a b
-let fst = \a -> a true
-let snd = \a -> a false
+let fst = \a b -> a
+let snd = \a b -> b
+
+let (&&) = \a b -> if a b false
+binop (&&) 15 left
+let (||) = \a b -> if a true b
+binop (||) 14 left
+
+let (+) = add
+binop (+) 5 left
+let (-) = sub
+binop (-) 5 left
+
+let (*) = mul
+binop (*) 6 left
+let (/) = div
+binop (/) 6 left
+
+let (==) = eq
+binop (==) 4 left
 
 let ($) = \a b -> a b
 binop ($) 1 right
 
 let (:) = \a b -> cons a b
-binop (:) 4 left
+binop (:) 4 right
 
-let tail = snd
-let zipWith = \f a b -> 
-    (f (fst a) $ fst b) : ((zipWith f) (snd a) (snd b))
+let tail = \a -> a snd
+let head = \a -> a fst
 
-let fibs = (0 : 1) : zipWith add fibs (snd fibs)
+let zip_with = \f a b -> 
+    if ((a == nill) || b == nill) nill ((f (head a) (head b)) : (zip_with f (tail a) (tail b)))
 
-print $ fst $ fibs
+let fib_seq = 0 : 1 : (zip_with (+) fib_seq (tail fib_seq))
+
+
+let index = \list idx ->
+    if (idx == 0) {
+        head list
+    } {
+        index (tail list) (idx-1)
+    }
+
+print $ index fib_seq 12

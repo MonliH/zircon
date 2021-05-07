@@ -70,7 +70,7 @@ namespace ZirconLang.Parser
 
             if (!Check(TokenType.LParen) && !Check(TokenType.Operator, "@"))
                 throw new ErrorBuilder()
-                    .Msg($"Expected identifier or operator, found {Peek().Ty.Display()}")
+                    .Msg($"expected identifier or operator, found {Peek().Ty.Display()}")
                     .Span(Peek().Span)
                     .Type(ErrorType.Syntax)
                     .Build();
@@ -258,7 +258,7 @@ namespace ZirconLang.Parser
                 return ParseLambda();
             }
 
-            throw new ErrorBuilder().Msg($"Expected an expression item, found {Peek().Ty.Display()}")
+            throw new ErrorBuilder().Msg($"expected an expression item, found {Peek().Ty.Display()}")
                 .Span(CurrentSpan()).Type(ErrorType.Syntax).Build();
         }
     }

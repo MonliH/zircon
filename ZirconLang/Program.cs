@@ -1,5 +1,6 @@
 ﻿using System;
 using CommandLine;
+using ZirconLang.Interpreter;
 
 namespace ZirconLang
 {
@@ -11,7 +12,7 @@ namespace ZirconLang
 
         [Option("debug-parser", Required = false, HelpText = "Print AST and operator information")]
         public bool DebugParser { get; set; }
-        
+
         [Option("debug-lexer", Required = false, HelpText = "Print tokens emitted from the lexer")]
         public bool DebugLexer { get; set; }
     }
@@ -22,20 +23,44 @@ namespace ZirconLang
         {
             Runner runner = new Runner();
             SourceMap smap = new SourceMap();
-            try
+            if (opts.Filename != null)
             {
-                if (opts.Filename != null)
+                string filename = opts.Filename;
+                string fileContents = System.IO.File.ReadAllText(filename);
+                SourceId sid = smap.AddSource(fileContents, filename);
+
+                try
                 {
-                    string filename = opts.Filename;
-                    string fileContents = System.IO.File.ReadAllText(filename);
-                    SourceId sid = smap.AddSource(fileContents, filename);
-                    Runner.Run(smap.LookupSource(sid), sid, opts);
+                    runner.Run(smap.LookupSource(sid), sid, opts);
+                }
+                catch (Diagnostics.ErrorDisplay e)
+                {
+                    e.DisplayError(smap);
+                    Environment.Exit(1);
                 }
             }
-            catch (Diagnostics.ErrorDisplay e)
+            else
             {
-                e.DisplayError(smap);
-                Environment.Exit(1);
+                // Boot into REPL
+                while (true)
+                {
+                    Console.Write("zλ> ");
+                    string input = Console.ReadLine() ?? ":q";
+                    if (input == ":q")
+                    {
+                        Console.WriteLine("\nbye.");
+                        break;
+                    }
+                    SourceId sid = smap.AddSource(input, "<repl_input>");
+                    try
+                    {
+                        Console.WriteLine(ValuePrinter.Print(runner.Run(smap.LookupSource(sid), sid, opts)));
+                    }
+                    catch (Diagnostics.ErrorDisplay e)
+                    {
+                        e.DisplayError(smap);
+                    }
+                }
             }
         }
 

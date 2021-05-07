@@ -40,7 +40,7 @@ namespace ZirconLang.Interpreter
             if (_vars.ContainsKey(name.Name)) return _vars[name.Name].Force();
             if (_enclosing != null) return _enclosing.Lookup(name);
 
-            throw new ErrorBuilder().Msg($"Undefined variable `{name.Name}`").Type(ErrorType.UnboundVariable)
+            throw new ErrorBuilder().Msg($"undefined variable `{name.Name}`").Type(ErrorType.UnboundVariable)
                 .Span(name.Span).Build();
         }
     }

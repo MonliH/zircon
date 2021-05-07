@@ -1,22 +1,12 @@
-let (+) = \a b -> add a b
+let (+) = add
 binop (+) 6 left
-let (-) = \a b -> sub a b
+let (-) = sub
 binop (-) 6 left
 
-let (*) = \a b -> mul a b
+let (*) = mul
 binop (*) 5 left
-let (/) = \a b -> div a b
+let (/) = div
 binop (/) 5 left
-let (%) = \a b -> mod a b
-binop (%) 5 left
 
-let (==) = \a b -> eq a b
+let (==) = eq
 binop (==) 10 left
-
-let @(-) = \a -> neg a
-preop (-) 3
-
-let (!)@ = \a -> fac a
-postop (!) 3
-
-12!
