@@ -1,3 +1,3 @@
 let fib_seq = 0 : 1 : (zip_with (+) fib_seq (tail fib_seq))
 
-print $ index fib_seq 5
+print $ index fib_seq 11

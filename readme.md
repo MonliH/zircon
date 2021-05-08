@@ -10,8 +10,8 @@ and lack of many built-ins makes it feel more like lisp without parentheses:
 ```python
 let fib_seq = 0 : 1 : (zip_with (+) fib_seq (tail fib_seq))
 
-print $ index fib_seq 5
-# 
+print $ index fib_seq 11
+# 89
 ```
 
 ## Build & usage
