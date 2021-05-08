@@ -62,6 +62,22 @@ namespace ZirconLang
                     {
                         Console.WriteLine("\nbye.");
                         break;
+                    } else if (input == ":m")
+                    {
+                        input = "";
+
+                        string line = "";
+                        while ((line = Console.ReadLine() ?? ":m") != ":m")
+                        {
+                            input += line;
+                        }
+                    } else if (input is ":?" or ":help" or ":h")
+                    {
+                        Console.WriteLine("zircon REPL.");
+                        Console.WriteLine(":?, :help, :h - show this message");
+                        Console.WriteLine("           :q - quit out of the repl");
+                        Console.WriteLine("           :m - multiline input; end with another :m");
+                        continue;
                     }
 
                     SourceId sid = smap.AddSource(input, "<repl_input>");

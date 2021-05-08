@@ -1,11 +1,3 @@
 let fib_seq = 0 : 1 : (zip_with (+) fib_seq (tail fib_seq))
 
-let print_up_to = \list upto idx ->
-    if (idx == upto) {
-        unit
-    } {
-        print (head list)
-        print_up_to (tail list) upto (idx + 1)
-    }
-
-print_up_to fib_seq 10 0
+print $ index fib_seq 5

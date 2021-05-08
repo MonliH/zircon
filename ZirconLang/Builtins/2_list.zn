@@ -15,6 +15,6 @@ let zip_with = \f a b ->
 let map = \f list ->
     f (head list) : map f (tail list)
     
-let index = \list idx -> if idx == 0 (head list) (index list $ idx - 1)
+let index = \list idx -> if idx == 0 (head list) (index (tail list) $ idx - 1)  
 let (!!) = index
 binop (!!) 20 left
