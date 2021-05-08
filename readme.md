@@ -4,7 +4,7 @@ Zircon is a purely functional language with no mutable state.
 It is interpreted via [lazy evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), à la Haskell.
 
 I made the language with haskell in mind, but it's minimal syntax 
-and lack of many built-ins makes it feel more like lisp or smalltalk:
+and lack of many built-ins makes it feel more like lisp or smalltalk.
 
 Example fibonacci sequence:
 ```python
@@ -47,4 +47,4 @@ You can also add `net5.0/` to your PATH for convenience.
 
 ## Examples
 
-For more, see the [examples](https://github.com/MonLiH/zircon-lang/tree/master/Examples) folder.
+For more, see the [examples](https://github.com/MonLiH/zircon/tree/master/Examples) folder.
