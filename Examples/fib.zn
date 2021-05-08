@@ -5,4 +5,4 @@ let fib_iter' = \a b count ->
 
 let fib = fib_iter' 1 0
 
-print $ fib 30
+print $ fib 32

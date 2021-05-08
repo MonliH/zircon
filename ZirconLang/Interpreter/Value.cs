@@ -32,6 +32,7 @@ namespace ZirconLang.Interpreter
 
     public abstract class Value
     {
+        public abstract TypeName Type();
         public Span Span;
 
         public Value(Span span)
@@ -39,12 +40,11 @@ namespace ZirconLang.Interpreter
             Span = span;
         }
 
-        public abstract TypeName Type();
-
         public class VUnit : Value
         {
             public VUnit(Span span) : base(span)
-            { }
+            {
+            }
 
             public override TypeName Type()
             {
@@ -56,7 +56,7 @@ namespace ZirconLang.Interpreter
                 return visitor.visit(this);
             }
         }
-        
+
         public class VInt : Value
         {
             public long Value;
@@ -90,7 +90,7 @@ namespace ZirconLang.Interpreter
             {
                 return TypeName.Bool;
             }
-            
+
             public override T Accept<T>(IValueVisitor<T> visitor)
             {
                 return visitor.visit(this);
@@ -110,7 +110,7 @@ namespace ZirconLang.Interpreter
             {
                 return TypeName.String;
             }
-            
+
             public override T Accept<T>(IValueVisitor<T> visitor)
             {
                 return visitor.visit(this);
@@ -130,7 +130,7 @@ namespace ZirconLang.Interpreter
             {
                 return TypeName.Real;
             }
-            
+
             public override T Accept<T>(IValueVisitor<T> visitor)
             {
                 return visitor.visit(this);
@@ -146,11 +146,6 @@ namespace ZirconLang.Interpreter
                 Lam = (th) => InterpreterVisitor.Interpret(new Env(env, binder.Name, th), expr);
             }
 
-            public VLambda(Env env, Func<Thunk, Env, Value> func, Span span) : base(span)
-            {
-                Lam = (th) => func(th, env);
-            }
-            
             public VLambda(Func<Thunk, Value> func, Span span) : base(span)
             {
                 Lam = func;
@@ -160,7 +155,7 @@ namespace ZirconLang.Interpreter
             {
                 return TypeName.Lambda;
             }
-            
+
             public override T Accept<T>(IValueVisitor<T> visitor)
             {
                 return visitor.visit(this);

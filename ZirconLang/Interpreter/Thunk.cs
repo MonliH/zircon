@@ -2,7 +2,7 @@ using System;
 
 namespace ZirconLang.Interpreter
 {
-    public struct Thunk
+    public class Thunk
     {
         private Func<Value> _thunk;
 
