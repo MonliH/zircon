@@ -4,14 +4,23 @@ Zircon is a purely functional language with no mutable state.
 It is interpreted via [lazy evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), à la Haskell.
 
 I made the language with haskell in mind, but it's minimal syntax 
-and lack of many built-ins makes it feel more like lisp without parentheses:
+and lack of many built-ins makes it feel more like lisp or smalltalk:
 
-
+Example fibonacci sequence:
 ```python
 let fib_seq = 0 : 1 : (zip_with (+) fib_seq (tail fib_seq))
 
 print $ index fib_seq 11
 # 89
+```
+
+Example factorial function:
+```python
+let (!)@ = \n -> if (n == 0) 1 (n * ((n-1)!))
+postop (!) 10
+
+print 12!
+# 479001600
 ```
 
 ## Build & usage
