@@ -14,6 +14,8 @@ let zip_with = \f a b ->
     if (a == nill || b == nill) nill $ (f (head a) $ head b) : (zip_with f (tail a) $ tail b)
 let map = \f list ->
     f (head list) : map f (tail list)
+let range' = \start end step -> if start >= end (nill) (start : (range' (start+step) end step))
+let range = \start end -> range' start end 1
     
 let index = \list idx -> if idx == 0 (head list) (index (tail list) $ idx - 1)  
 let (!!) = index

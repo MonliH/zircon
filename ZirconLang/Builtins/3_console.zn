@@ -1,4 +1,14 @@
+let print' = \a -> {
+    write' a
+    write' "\n"
+}
+
 let print = \a -> {
     print' a
     print
+}
+
+let write = \a -> {
+    write' a
+    write
 }

@@ -13,9 +13,9 @@ namespace ZirconLang
         public GlobalVars()
         {
             _globals = new Env();
-            _globals.Define("print'", new Thunk(() => new Value.VLambda((Thunk th) =>
+            _globals.Define("write'", new Thunk(() => new Value.VLambda((Thunk th) =>
             {
-                Console.WriteLine(ValuePrinter.Print(th.Force()));
+                Console.Write(ValuePrinter.Print(th.Force()));
                 return new Value.VUnit(GlobalSpan);
             }, GlobalSpan)), GlobalSpan);
             _globals.Define("input", new Thunk(() =>
@@ -103,6 +103,107 @@ namespace ZirconLang
                     return cd.Value ? fst.Force() : snd.Force();
                 }, GlobalSpan), GlobalSpan), GlobalSpan)), GlobalSpan);
 
+            _globals.Define("atan2", new Thunk(() => new Value.VLambda((Thunk fst) =>
+                new Value.VLambda((Thunk snd) =>
+                {
+                    Value first = fst.Force();
+                    Value second = snd.Force();
+                    TypeName fstTy = first.Type();
+                    TypeName sndTy = second.Type();
+                    Span combined = first.Span.Combine(second.Span);
+                    switch ((fstTy, sndTy))
+                    {
+                        case (TypeName.Int, TypeName.Int):
+                            return new Value.VFloat(Math.Atan2(((Value.VInt) first).Value, ((Value.VInt) second).Value),
+                                combined);
+                        case (TypeName.Real, TypeName.Real):
+                            return new Value.VFloat(
+                                Math.Atan2(((Value.VFloat) first).Value, ((Value.VFloat) second).Value),
+                                combined);
+                        default:
+                            throw new ErrorBuilder()
+                                .Msg($"cannot calculate the atan2 of types `{fstTy.Display()}` and `{sndTy.Display()}`")
+                                .Type(ErrorType.Type).Span(combined).Build();
+                    }
+                }, GlobalSpan), GlobalSpan)), GlobalSpan);
+
+            _globals.Define("to_float", new Thunk(() => new Value.VLambda((Thunk fst) =>
+            {
+                Value first = fst.Force();
+                TypeName fstTy = first.Type();
+                switch (fstTy)
+                {
+                    case TypeName.Int:
+                        return new Value.VFloat((double) ((Value.VInt) first).Value, first.Span);
+                    case TypeName.String:
+                        try
+                        {
+                            return new Value.VFloat(Double.Parse(((Value.VString) first).Value), first.Span);
+                        }
+                        catch
+                        {
+                            throw new ErrorBuilder()
+                                .Msg($"invalid float provided to `to_float` as a string")
+                                .Type(ErrorType.Runtime).Span(first.Span).Build();
+                        }
+
+                    default:
+                        throw new ErrorBuilder()
+                            .Msg($"cannot convert type of `{fstTy.Display()}` to `float`")
+                            .Type(ErrorType.Type).Span(first.Span).Build();
+                }
+            }, GlobalSpan)), GlobalSpan);
+
+            _globals.Define("round", new Thunk(() => new Value.VLambda((Thunk fst) =>
+            {
+                Value first = fst.Force();
+                TypeName fstTy = first.Type();
+                switch (fstTy)
+                {
+                    case TypeName.Real:
+                        return new Value.VInt((long)
+                            Math.Round(((Value.VFloat) first).Value), first.Span);
+                    default:
+                        throw new ErrorBuilder()
+                            .Msg($"cannot round type of `{fstTy.Display()}`")
+                            .Type(ErrorType.Type).Span(first.Span).Build();
+                }
+            }, GlobalSpan)), GlobalSpan);
+
+            _globals.Define("cos", new Thunk(() => new Value.VLambda((Thunk fst) =>
+            {
+                Value first = fst.Force();
+                TypeName fstTy = first.Type();
+                switch (fstTy)
+                {
+                    case TypeName.Int:
+                        return new Value.VFloat(Math.Cos(((Value.VInt) first).Value), first.Span);
+                    case TypeName.Real:
+                        return new Value.VFloat(Math.Cos(((Value.VFloat) first).Value), first.Span);
+                    default:
+                        throw new ErrorBuilder()
+                            .Msg($"cannot calculate the cosine of `{fstTy.Display()}`")
+                            .Type(ErrorType.Type).Span(first.Span).Build();
+                }
+            }, GlobalSpan)), GlobalSpan);
+
+            _globals.Define("sin", new Thunk(() => new Value.VLambda((Thunk fst) =>
+            {
+                Value first = fst.Force();
+                TypeName fstTy = first.Type();
+                switch (fstTy)
+                {
+                    case TypeName.Int:
+                        return new Value.VFloat(Math.Sin(((Value.VInt) first).Value), first.Span);
+                    case TypeName.Real:
+                        return new Value.VFloat(Math.Sin(((Value.VFloat) first).Value), first.Span);
+                    default:
+                        throw new ErrorBuilder()
+                            .Msg($"cannot calculate the sin of `{fstTy.Display()}`")
+                            .Type(ErrorType.Type).Span(first.Span).Build();
+                }
+            }, GlobalSpan)), GlobalSpan);
+
             _globals.Define("div", new Thunk(() => new Value.VLambda((Thunk fst) =>
                 new Value.VLambda((Thunk snd) =>
                 {
@@ -163,22 +264,22 @@ namespace ZirconLang
                 }, GlobalSpan), GlobalSpan)), GlobalSpan);
 
             _globals.Define("neg", new Thunk(() => new Value.VLambda((Thunk fst) =>
+            {
+                Value first = fst.Force();
+                TypeName fstTy = first.Type();
+                switch (fstTy)
                 {
-                    Value first = fst.Force();
-                    TypeName fstTy = first.Type();
-                    switch (fstTy)
-                    {
-                        case TypeName.Int:
-                            return new Value.VInt(-((Value.VInt) first).Value, first.Span);
-                        case TypeName.Real:
-                            return new Value.VFloat(-((Value.VFloat) first).Value, first.Span);
-                        default:
-                            throw new ErrorBuilder()
-                                .Msg($"cannot negate the type `{fstTy.Display()}`")
-                                .Type(ErrorType.Type).Span(first.Span).Build();
-                    }
-                }, GlobalSpan)), GlobalSpan);
-            
+                    case TypeName.Int:
+                        return new Value.VInt(-((Value.VInt) first).Value, first.Span);
+                    case TypeName.Real:
+                        return new Value.VFloat(-((Value.VFloat) first).Value, first.Span);
+                    default:
+                        throw new ErrorBuilder()
+                            .Msg($"cannot negate the type `{fstTy.Display()}`")
+                            .Type(ErrorType.Type).Span(first.Span).Build();
+                }
+            }, GlobalSpan)), GlobalSpan);
+
             _globals.Define("sub", new Thunk(() => new Value.VLambda((Thunk fst) =>
                 new Value.VLambda((Thunk snd) =>
                 {

@@ -254,7 +254,10 @@ namespace ZirconLang.Lexer
             // Closing "
             Advance();
 
-            string stringContents = _stream.Substring(_sIdx + 1, _eIdx - _sIdx - 2);
+            string stringContents = _stream.Substring(_sIdx + 1, _eIdx - _sIdx - 2)
+                .Replace("\\n", "\n")
+                .Replace("\\t", "\t")
+                .Replace("\\\"", "\"");
             AddToken(TokenType.String, stringContents);
         }
 

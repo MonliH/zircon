@@ -1,0 +1,32 @@
+let print_density = \density ->
+    if density > 8 (write' " ") (
+    if density > 4 (write' ".") (
+    if density > 2 (write' "+") (
+    write' "#")))
+
+let mandel_converger = \real imag iters creal cimag ->
+    if (iters > 8 || ((real*real + imag*imag) > 4.0)) iters (
+        mandel_converger (real*real - imag*imag + creal) (2.0*real*imag + cimag) (iters+1) creal cimag
+    )
+
+let mandel_converge = \real imag ->
+    mandel_converger real imag 0 real imag
+
+let mandel_range_x = \xmin xmax xstep  y ->
+    if (xmin < xmax) {
+        print_density $ mandel_converge xmin y
+        mandel_range_x (xmin+xstep) xmax xstep y
+    } unit
+
+let mandel_range_y = \xmin xmax xstep  ymin ymax ystep ->
+    if (ymin < ymax) {
+        mandel_range_x xmin xmax xstep ymin
+        write "\n"
+        mandel_range_y xmin xmax xstep (ymin+ystep) ymax ystep
+    } unit
+
+let mandel = \realS imagS realMag imageMag ->
+    mandel_range_y realS (realS+realMag*78.0) realMag imagS (imagS+imageMag*40.0) imageMag
+
+mandel (neg 3.0) (neg 1.0) 0.05 0.05
+write "\n"
