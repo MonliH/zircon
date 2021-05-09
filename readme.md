@@ -1,12 +1,18 @@
-# Zircon 💎
 
-Zircon is a purely functional language with no mutable state.
-It is interpreted via [lazy evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), à la Haskell.
+<div align=center>
+    <!--<img src="images/logo.png" width=200 align=center></img>-->
+    <h1>zircon 💎</h1>
+    <b>a purely functional language</b>
+</div>
+<br>
+<br>
 
-I made the language with haskell in mind, but it's minimal syntax 
-and lack of many built-ins makes it feel more like lisp or smalltalk.
+**hello world:**
+```python
+print "Hello, World!"
+```
 
-Example fibonacci sequence:
+**fibonacci sequence:**
 ```python
 let fib_seq = 0 : 1 : (zip_with (+) fib_seq (tail fib_seq))
 
@@ -14,7 +20,7 @@ print $ index fib_seq 11
 # 89
 ```
 
-Example factorial function:
+**factorial:**
 ```python
 let (!)@ = \n -> if (n == 0) 1 (n * ((n-1)!))
 postop (!) 10
@@ -23,7 +29,15 @@ print 12!
 # 479001600
 ```
 
-## Build & usage
+<br>
+
+**design:**
+* no mutable variables
+* is interpreted via [lazy evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), à la Haskell
+* made with haskell in mind, but it's extremely minimal syntax made it turn out more like lisp or smalltalk
+
+
+## build & usage
 Install the [dotnet build tools](https://dotnet.microsoft.com/). Then:
 
 ```
@@ -31,13 +45,13 @@ git clone https://github.com/MonliH/zircon-lang.git
 dotnet build -c Release
 ```
 
-To boot the REPL:
+To start the REPL:
 ```
 $ ./ZirconLang/bin/Release/net5.0/ZirconLang
 zλ> 
 ```
 
-To execute a file:
+To run a file:
 ```
 $ ./ZirconLang/bin/Release/net5.0/ZirconLang Examples/fib.zn
 832040
@@ -45,9 +59,9 @@ $ ./ZirconLang/bin/Release/net5.0/ZirconLang Examples/fib.zn
 
 You can also add `net5.0/` to your PATH for convenience.
 
-## Examples
+## more examples
 
-For more, see the [examples](https://github.com/MonLiH/zircon/tree/master/Examples) folder.
+**mandelbrot set:**
 
 ```
 $ ./ZirconLang/bin/Release/net5.0/ZirconLang ./Examples/mandelbrot.zn
@@ -92,3 +106,5 @@ $ ./ZirconLang/bin/Release/net5.0/ZirconLang ./Examples/mandelbrot.zn
 ############################################++++++++++...   ..++++++###########
 #############################################++++++++++..   ..+++++############
 ```
+
+For more, see the [examples](https://github.com/MonLiH/zircon/tree/master/Examples) folder.
