@@ -5,7 +5,7 @@ let print_density = \density ->
     write' "#")))
 
 let mandel_converger = \real imag iters creal cimag ->
-    if (iters > 8 || ((real*real + imag*imag) > 4.0)) iters (
+    if (iters > 128 || ((real*real + imag*imag) > 4.0)) iters (
         mandel_converger (real*real - imag*imag + creal) (2.0*real*imag + cimag) (iters+1) creal cimag
     )
 
