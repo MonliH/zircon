@@ -42,6 +42,7 @@ Install the [dotnet build tools](https://dotnet.microsoft.com/). Then:
 
 ```
 git clone https://github.com/MonliH/zircon-lang.git
+cd zircon-lang
 dotnet build -c Release
 ```
 
