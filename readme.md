@@ -2,7 +2,7 @@
 <div align=center>
     <!--<img src="images/logo.png" width=200 align=center></img>-->
     <h1>zircon 💎</h1>
-    <b>a purely functional language</b>
+    <b>a purely functional language<sup><a href="#its-technically-not-purely-functional">[*]</a></sup></b>
 </div>
 <br>
 <br>
@@ -109,3 +109,8 @@ $ ./ZirconLang/bin/Release/net5.0/ZirconLang ./Examples/mandelbrot.zn
 ```
 
 For more, see the [examples](https://github.com/MonLiH/zircon/tree/master/Examples) folder.
+
+
+## it's technically not *purely* functional
+
+Ok, that's true. Because I didn't want to implement something like the [`IO` monad](https://www.haskell.org/tutorial/io.html) and friends, print statements are run imperatively.
